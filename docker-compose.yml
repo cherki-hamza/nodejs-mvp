@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: works-mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: worksdb
+
+  backend:
+    build: ./backend
+    container_name: works-backend
+    restart: always
+    environment:
+      MONGO_URI: mongodb://mongo:27017/worksdb
+      JWT_SECRET: supersecret
+    depends_on:
+      - mongo
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build: ./frontend
+    container_name: works-frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: https://works.cherkihamza.com
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo_data:
